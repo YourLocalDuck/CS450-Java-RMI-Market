@@ -1,1 +1,3 @@
 # 450MarketAssignment
+## To use, edit line 11 on Client.java to the machine where the Server will run. It is currently set to localhost for convenience in testing.
+## After modification, use command `make` to compile the project. This will create a Client.jar and a Server.jar. `make run-server` and `make run-client` will run the server and client respectively, however, it is also possible to just transport the jar files into the context of the server and client machines, and simply run `java -jar Client.jar` or `java -jar Server.jar`.
