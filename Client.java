@@ -13,6 +13,9 @@ public class Client {
             // Look up the remote Store
             StoreInterface store = (StoreInterface) registry.lookup("Store");
 
+            // Create a FrontController
+            FrontController frontController = new FrontController(store);
+
             // Program Loop
             boolean keepGoing = true;
             while (keepGoing) {
@@ -23,13 +26,13 @@ public class Client {
                 switch (choice) {
                     case 1:
                         // Log in as Administrator or Customer, and enter into the respective loop
-                        User user = login(store);
+                        User user = login(frontController, store);
                         if (user instanceof AdministratorInterface) {
                             AdministratorInterface admin = (AdministratorInterface) user;
-                            adminLoop(admin);
+                            adminLoop(frontController, admin);
                         } else if (user instanceof CustomerInterface) {
                             CustomerInterface customer = (CustomerInterface) user;
-                            customerLoop(customer);
+                            customerLoop(frontController, customer);
                         } else {
                             System.out.println("Invalid user");
                         }
@@ -40,8 +43,7 @@ public class Client {
                         String username = System.console().readLine();
                         System.out.println("Enter your password:");
                         String password = System.console().readLine();
-                        Customer customer = new Customer(username, password, store);
-                        store.addUser(customer);
+                        frontController.register(username, password, new CustomerFactory());
                         break;
                     default:
                         System.out.println("Invalid choice");
@@ -55,34 +57,24 @@ public class Client {
         }
     }
 
-    public static User login(StoreInterface store) {
+    public static User login(FrontController frontController, StoreInterface store) {
         System.out.println("Enter your username:");
         String username = System.console().readLine();
         System.out.println("Enter your password:");
         String password = System.console().readLine();
-        User user;
-        try {
-            user = store.getUser(username);
-        } catch (RemoteException e) {
-            System.err.println("Client exception: " + e.toString());
-            e.printStackTrace();
-            return null;
+        User user = frontController.login(username, password);
+        while (user == null) {
+            System.out.println("Invalid username or password");
+            System.out.println("Enter your username:");
+            username = System.console().readLine();
+            System.out.println("Enter your password:");
+            password = System.console().readLine();
+            user = frontController.login(username, password);
         }
-        try {
-            if (user.authenticate(password)) {
-                return user;
-            } else {
-                System.out.println("Invalid username or password");
-                return null;
-            }
-        } catch (RemoteException e) {
-            System.err.println("Client exception: " + e.toString());
-            e.printStackTrace();
-            return null;
-        }
+        return user;
     }
 
-    public static void adminLoop(AdministratorInterface admin) throws RemoteException {
+    public static void adminLoop(FrontController frontController, AdministratorInterface admin) throws RemoteException {
         boolean keepGoing = true;
         while (keepGoing) {
             System.out.println("What would you like to do?");
@@ -100,14 +92,7 @@ public class Client {
             int choice = Integer.parseInt(System.console().readLine());
             switch (choice) {
                 case 1:
-                    List<Item> inventory;
-                    try {
-                        inventory = admin.getInventory();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    List<Item> inventory = frontController.adminGetInventory(admin);
                     for (Item item : inventory) {
                         System.out.println("ID: " + item.getId() +  "Name " + item.getName() + "Price " + item.getPrice() + "Description "
                                 + item.getDescription() + " Quantity " + item.getQuantity());
@@ -124,13 +109,7 @@ public class Client {
                     float price = Float.parseFloat(System.console().readLine());
                     System.out.println("Enter the quantity of the item:");
                     int qt = Integer.parseInt(System.console().readLine());
-                    try {
-                        admin.addItem(new Item(admin.getNewID(), name, type, description, price, qt));
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.adminAddItem(admin, name, type, description, price, qt);
                     break;
                 case 3:
                     System.out.println("Enter the id of the item:");
@@ -143,34 +122,15 @@ public class Client {
                     description = System.console().readLine();
                     System.out.println("Enter the quantity of the item:");
                     int quantity = Integer.parseInt(System.console().readLine());
-                    try {
-                        admin.updateItem(id, name, price, description, quantity);
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.adminUpdateItem(admin, id, name, price, description, quantity);
                     break;
-                    case 4:
+                case 4:
                     System.out.println("Enter the id of the item:");
                     id = Integer.parseInt(System.console().readLine());
-                    try {
-                        admin.removeItem(id);
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.adminRemoveItem(admin, id);
                     break;
                 case 5:
-                    List<User> users;
-                    try {
-                        users = admin.getUsers();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    List<User> users = frontController.adminGetUsers(admin);
                     for (User u : users) {
                         System.out.println("Username: " + u.getUsername());
                     }
@@ -180,65 +140,28 @@ public class Client {
                     String username = System.console().readLine();
                     System.out.println("Enter the password of the user:");
                     String password = System.console().readLine();
-                    try {
-                        admin.addCustomer(new Customer(username, password, admin.getStore()));
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.register(username, password, new CustomerFactory());
                     break;
                 case 7:
                     System.out.println("Enter the username of the user:");
                     username = System.console().readLine();
-                    try {
-                        admin.removeCustomer((Customer) admin.getStore().getUser(username));
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    } catch (ClassCastException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.adminRemoveCustomer(admin, username);
+                    System.out.println("User removed");
                     break;
                 case 8:
                     System.out.println("Enter the username of the user:");
                     username = System.console().readLine();
                     System.out.println("Enter the password of the user:");
                     password = System.console().readLine();
-                    try {
-                        admin.addAdministrator(new Administrator(username, password, admin.getStore()));
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.register(username, password, new AdministratorFactory());
                     break;
                 case 9:
                     System.out.println("Enter the username of the user:");
                     username = System.console().readLine();
-                    try {
-                        admin.removeAdministrator((Administrator) admin.getStore().getUser(username));
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    } catch (ClassCastException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.adminRemoveAdministrator(admin, username);
                     break;
                 case 10:
-                    try {
-                        admin.logout();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.logout(admin);
                     keepGoing = false;
                     break;
                 case 11:
@@ -248,7 +171,7 @@ public class Client {
         }
     }
 
-    public static void customerLoop(CustomerInterface customer) throws RemoteException{
+    public static void customerLoop(FrontController frontController, CustomerInterface customer) throws RemoteException{
         boolean keepGoing = true;
         while (keepGoing) {
             System.out.println("What would you like to do?");
@@ -263,28 +186,14 @@ public class Client {
             int choice = Integer.parseInt(System.console().readLine());
             switch (choice) {
                 case 1:
-                    List<Item> inventory;
-                    try {
-                        inventory = customer.browseItems();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    List<Item> inventory = frontController.customerGetInventory(customer);
                     for (Item item : inventory) {
                         System.out.println("ID: " + item.getId() +  "Name " + item.getName() + "Price " + item.getPrice() + "Description "
                                 + item.getDescription() + " Quantity " + item.getQuantity());
                     }
                     break;
                 case 2:
-                    Map<Item, Integer> cart;
-                    try {
-                        cart = customer.getCart().getContents();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    Map<Item, Integer> cart = frontController.customerGetCart(customer);
                     for (Map.Entry<Item, Integer> entry : cart.entrySet()) {
                         Item item = entry.getKey();
                         int quantity = entry.getValue();
@@ -297,53 +206,23 @@ public class Client {
                     int id = Integer.parseInt(System.console().readLine());
                     System.out.println("Enter the quantity of the item:");
                     int qt = Integer.parseInt(System.console().readLine());
-                    try {
-                        customer.addItemToCart(customer.getItem(id), qt);
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.customerAddToCart(customer, id, qt);
                     break;
                 case 4:
                     System.out.println("Enter the id of the item:");
                     id = Integer.parseInt(System.console().readLine());
                     System.out.println("Enter the quantity of the item:");
                     qt = Integer.parseInt(System.console().readLine());
-                    try {
-                        customer.removeItemFromCart(customer.getItem(id), qt);
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.customerRemoveFromCart(customer, id, qt);
                     break;
                 case 5:
-                    try {
-                        customer.getCart().emptyCart();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.customerEmptyCart(customer);
                     break;
                 case 6:
-                    try {
-                        customer.getCart().checkout();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.customerCheckout(customer);
                     break;
                 case 7:
-                    try {
-                        customer.logout();
-                    } catch (RemoteException e) {
-                        System.err.println("Client exception: " + e.toString());
-                        e.printStackTrace();
-                        break;
-                    }
+                    frontController.logout(customer);
                     keepGoing = false;
                     break;
                 case 8:
