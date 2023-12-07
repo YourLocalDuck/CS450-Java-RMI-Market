@@ -25,3 +25,6 @@ run-client: Client.jar
 
 clean:
 	$(RM) *.class *.jar
+
+cleanclasses:
+	$(RM) *.class

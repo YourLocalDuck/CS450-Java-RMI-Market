@@ -1,0 +1,113 @@
+java -jar Client.jar
+What would you like to do?
+1. Login
+2. Register
+1
+Enter your username:
+admin1
+Enter your password:
+password1
+What would you like to do?
+1. View Inventory
+2. Add Item
+3. Update Item
+4. Remove Item
+5. View Users
+6. Add User
+7. Remove User
+8. Add Administrator
+9. Remove Administrator
+10. Logout
+11. Exit
+5
+Username: customer1
+Username: admin1
+What would you like to do?
+1. View Inventory
+2. Add Item
+3. Update Item
+4. Remove Item
+5. View Users
+6. Add User
+7. Remove User
+8. Add Administrator
+9. Remove Administrator
+10. Logout
+11. Exit
+8
+Enter the username of the user:
+admin123
+Enter the password of the user:
+pass
+What would you like to do?
+1. View Inventory
+2. Add Item
+3. Update Item
+4. Remove Item
+5. View Users
+6. Add User
+7. Remove User
+8. Add Administrator
+9. Remove Administrator
+10. Logout
+11. Exit
+10
+What would you like to do?
+1. Login
+2. Register
+1
+Enter your username:
+admin123
+Enter your password:
+pass
+What would you like to do?
+1. View Inventory
+2. Add Item
+3. Update Item
+4. Remove Item
+5. View Users
+6. Add User
+7. Remove User
+8. Add Administrator
+9. Remove Administrator
+10. Logout
+11. Exit
+6
+Enter the username of the user:
+NormalUser
+Enter the password of the user:
+p4ss
+What would you like to do?
+1. View Inventory
+2. Add Item
+3. Update Item
+4. Remove Item
+5. View Users
+6. Add User
+7. Remove User
+8. Add Administrator
+9. Remove Administrator
+10. Logout
+11. Exit
+10
+What would you like to do?
+1. Login
+2. Register
+1
+Enter your username:
+NormalUser
+Enter your password:
+p4ss
+What would you like to do?
+1. View Inventory
+2. View Cart
+3. Add Item to Cart
+4. Remove Item from Cart
+5. Empty Cart
+6. Checkout
+7. Logout
+8. Exit
+7
+What would you like to do?
+1. Login
+2. Register

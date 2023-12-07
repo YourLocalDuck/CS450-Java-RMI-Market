@@ -13,3 +13,5 @@ Most of the operations are done on the Store class, which is why operations on t
 
 Here is a UML diagram of the design:
 ![UML.webp](https://raw.github.iu.edu/prajarub/450MarketAssignment/main/UML.webp?token=GHSAT0AAAAAAAAAU6M6SNYJVGDDJAUORR7IZLRA7GQ)
+
+A reproducable example workflow that demonstrates both of the new patterns working successfully can be found in sampleCode.txt. 

@@ -22,6 +22,7 @@ public class Client {
                 System.out.println("What would you like to do?");
                 System.out.println("1. Login");
                 System.out.println("2. Register");
+                System.out.println("3. Exit");
                 int choice = Integer.parseInt(System.console().readLine());
                 switch (choice) {
                     case 1:
@@ -44,6 +45,10 @@ public class Client {
                         System.out.println("Enter your password:");
                         String password = System.console().readLine();
                         frontController.register(username, password, new CustomerFactory());
+                        break;
+                    case 3:
+                        // Exit the program
+                        System.exit(0);
                         break;
                     default:
                         System.out.println("Invalid choice");
@@ -165,6 +170,7 @@ public class Client {
                     keepGoing = false;
                     break;
                 case 11:
+                    frontController.logout(admin);
                     System.exit(0);
                     break;
             }
@@ -226,6 +232,7 @@ public class Client {
                     keepGoing = false;
                     break;
                 case 8:
+                    frontController.logout(customer);
                     System.exit(0);
                     break;  
                 default:
